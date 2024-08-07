@@ -158,7 +158,7 @@ The **KubeMQ SDK for Spring Boot** enables Spring Boot developers to seamlessly 
 The recommended way to use the SDK for Java in your project is to add it as a dependency in Maven:
 
 ```xml
-	<dependency>
+	   <dependency>
         <groupId>io.kubemq.sdk</groupId>
         <artifactId>kubemq-sdk-springboot</artifactId>
         <version>2.0.0</version>
@@ -173,7 +173,7 @@ compile group: 'io.kubemq.sdk', name: 'kubemq-sdk-springboot', version: '2.0.0'
 
 ## Running Examples
 
-The [examples](https://github.com/kubemq-io/kubemq-java-example) are standalone projects that showcase the usage of the SDK with Spring Boot. To run the examples, ensure you have a running instance of KubeMQ. Import the project into any IDE of your choice (e.g., IntelliJ, Eclipse, NetBeans). The example project contains three packages demonstrating different implementations:
+The [examples](https://github.com/kubemq-io/kubemq-springboot/tree/main/kubemq-java-springboot-example) are standalone projects that showcase the usage of the SDK with Spring Boot. To run the examples, ensure you have a running instance of KubeMQ. Import the project into any IDE of your choice (e.g., IntelliJ, Eclipse, NetBeans). The example project contains three packages demonstrating different implementations:
 
 - `io.kubemq.example.cq`: Examples related to Commands and Queries
 - `io.kubemq.example.pubsub`: Examples related to Events and EventStore
