@@ -158,7 +158,7 @@ The **KubeMQ SDK for Spring Boot** enables Spring Boot developers to seamlessly 
 The recommended way to use the SDK for Java in your project is to add it as a dependency in Maven:
 
 ```xml
-	   <dependency>
+    <dependency>
         <groupId>io.kubemq.sdk</groupId>
         <artifactId>kubemq-sdk-springboot</artifactId>
         <version>2.0.0</version>
