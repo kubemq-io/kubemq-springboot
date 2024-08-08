@@ -107,24 +107,24 @@ public class EventsSubscription {
                 .setSubscribeTypeDataValue(1)
                 .build();
 
-        observer = new StreamObserver<Kubemq.EventReceive>() {
+        observer = new StreamObserver<>() {
             @Override
             public void onNext(Kubemq.EventReceive messageReceive) {
                 log.debug("Event Received Event: EventID:'{}', Channel:'{}', Metadata: '{}'", messageReceive.getEventID(), messageReceive.getChannel(), messageReceive.getMetadata());
                 // Send the received message to the consumer
-               raiseOnReceiveMessage(EventMessageReceived.decode(messageReceive));
+                raiseOnReceiveMessage(EventMessageReceived.decode(messageReceive));
             }
 
             @Override
             public void onError(Throwable t) {
-                log.error("Error:-- > "+t.getMessage());
+                log.error("Error:-- > " + t.getMessage());
                 raiseOnError(t.getMessage());
                 // IF gRPC exception attempt to retry
-                if(t instanceof io.grpc.StatusRuntimeException){
-                    io.grpc.StatusRuntimeException se =(io.grpc.StatusRuntimeException)t;
+                if (t instanceof io.grpc.StatusRuntimeException se) {
                     reconnect(pubSubClient);
                 }
             }
+
             @Override
             public void onCompleted() {
                 log.debug("StreamObserver completed.");

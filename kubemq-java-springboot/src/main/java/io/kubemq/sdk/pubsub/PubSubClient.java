@@ -18,7 +18,7 @@ public class PubSubClient extends KubeMQClient {
 
     @Autowired
     private KubeMQUtils kubeMqUtils;
-    private EventStreamHelper eventStreamHelper;
+    private final EventStreamHelper eventStreamHelper;
 
     @Builder
     public PubSubClient(String address, String clientId, String authToken, boolean tls, String tlsCertFile, String tlsKeyFile,
@@ -75,26 +75,6 @@ public class PubSubClient extends KubeMQClient {
     public boolean createEventsChannel(String channelName) {
         log.debug("Creating events channel: {}", channelName);
         return kubeMqUtils.createChannelRequest(this, this.getClientId(),channelName,"events");
-//        try {
-//            log.debug("Creating events channel: {}", channelName);
-//            Kubemq.Request request = Kubemq.Request.newBuilder()
-//                    .setRequestID(UUID.randomUUID().toString())
-//                    .setRequestTypeData(Kubemq.Request.RequestType.Query)
-//                    .setRequestTypeDataValue(2)
-//                    .setMetadata("create-channel")
-//                    .setChannel("kubemq.cluster.internal.requests")  // Hardcoded value
-//                    .setClientID(this.getClientId())
-//                    .putTags("channel_type", "events")
-//                    .putTags("channel", channelName)
-//                    .putTags("client_id", this.getClientId())
-//                    .setTimeout(10 * 1000)
-//                    .build();
-//            kubemq.Kubemq.Response response = this.getClient().sendRequest(request);
-//            return response.getExecuted();
-//        } catch (Exception e) {
-//            log.error("Failed to create events channel", e);
-//            throw new RuntimeException(e);
-//        }
     }
 
     /**
@@ -107,26 +87,6 @@ public class PubSubClient extends KubeMQClient {
     public boolean createEventsStoreChannel(String channelName) {
         log.debug("Creating events store channel: {}", channelName);
         return kubeMqUtils.createChannelRequest(this, this.getClientId(),channelName,"events_store");
-//        try {
-//            log.debug("Creating events store channel: {}", channelName);
-//            Kubemq.Request request = Kubemq.Request.newBuilder()
-//                    .setRequestID(UUID.randomUUID().toString())
-//                    .setRequestTypeData(Kubemq.Request.RequestType.Query)
-//                    .setRequestTypeDataValue(2)
-//                    .setMetadata("create-channel")
-//                    .setChannel("kubemq.cluster.internal.requests")  // Hardcoded value
-//                    .setClientID(this.getClientId())
-//                    .putTags("channel_type", "events_store")
-//                    .putTags("channel", channelName)
-//                    .putTags("client_id", this.getClientId())
-//                    .setTimeout(10 * 1000)
-//                    .build();
-//            kubemq.Kubemq.Response response = this.getClient().sendRequest(request);
-//            return response.getExecuted();
-//        } catch (Exception e) {
-//            log.error("Failed to create events store channel", e);
-//            throw new RuntimeException(e);
-//        }
     }
 
 
@@ -140,30 +100,6 @@ public class PubSubClient extends KubeMQClient {
     public List<PubSubChannel> listEventsChannels(String search) {
         log.debug("Listing events channels with search: {}", search);
         return kubeMqUtils.listPubSubChannels(this, this.getClientId(),"events",search);
-//        try {
-//            log.debug("Listing events channels with search: {}", search);
-//            Kubemq.Request request = Kubemq.Request.newBuilder()
-//                    .setRequestID(UUID.randomUUID().toString())
-//                    .setRequestTypeData(Kubemq.Request.RequestType.Query)
-//                    .setRequestTypeDataValue(2)
-//                    .setMetadata("list-channels")
-//                    .setChannel("kubemq.cluster.internal.requests")  // Hardcoded value
-//                    .setClientID(this.getClientId())
-//                    .putTags("channel_type", "events")
-//                    .putTags("channel_search", search != null?search:"")
-//                    .setTimeout(10 * 1000)
-//                    .build();
-//            kubemq.Kubemq.Response response = this.getClient().sendRequest(request);
-//            log.debug("Listing events channels response: {}",response);
-//            if (response.getExecuted()) {
-//                return ChannelDecoder.decodePubSubChannelList(response.getBody().toByteArray());
-//            } else {
-//                throw new RuntimeException(response.getError());
-//            }
-//        } catch (Exception e) {
-//            log.error("Failed to list events channels", e);
-//            throw new RuntimeException(e);
-//        }
     }
 
     /**
@@ -176,30 +112,6 @@ public class PubSubClient extends KubeMQClient {
     public List<PubSubChannel> listEventsStoreChannels(String search) {
         log.debug("Listing events store channels with search: {}", search);
         return kubeMqUtils.listPubSubChannels(this, this.getClientId(),"events_store",search);
-//        try {
-//            log.debug("Listing events store channels with search: {}", search);
-//            Kubemq.Request request = Kubemq.Request.newBuilder()
-//                    .setRequestID(UUID.randomUUID().toString())
-//                    .setRequestTypeData(Kubemq.Request.RequestType.Query)
-//                    .setRequestTypeDataValue(2)
-//                    .setMetadata("list-channels")
-//                    .setChannel("kubemq.cluster.internal.requests")  // Hardcoded value
-//                    .setClientID(this.getClientId())
-//                    .putTags("channel_type", "events_store")
-//                    .putTags("channel_search", search != null?search:"")
-//                    .setTimeout(10 * 1000)
-//                    .build();
-//            kubemq.Kubemq.Response response = this.getClient().sendRequest(request);
-//            log.debug("Listing events store channels response: {}",response);
-//            if (response.getExecuted()) {
-//                return ChannelDecoder.decodePubSubChannelList(response.getBody().toByteArray());
-//            } else {
-//                throw new RuntimeException(response.getError());
-//            }
-//        } catch (Exception e) {
-//            log.error("Failed to list events store channels", e);
-//            throw new RuntimeException(e);
-//        }
     }
 
     /**
@@ -250,26 +162,6 @@ public class PubSubClient extends KubeMQClient {
     public boolean deleteEventsChannel(String channelName) {
         log.debug("Deleting events channel: {}", channelName);
         return kubeMqUtils.deleteChannelRequest(this, this.getClientId(),channelName,"events");
-//        try {
-//            log.debug("Deleting events channel: {}", channelName);
-//            Kubemq.Request request = Kubemq.Request.newBuilder()
-//                    .setRequestID(UUID.randomUUID().toString())
-//                    .setRequestTypeData(Kubemq.Request.RequestType.Query)
-//                    .setRequestTypeDataValue(2)
-//                    .setMetadata("delete-channel")
-//                    .setChannel("kubemq.cluster.internal.requests")  // Hardcoded value
-//                    .setClientID(this.getClientId())
-//                    .putTags("channel_type", "events")
-//                    .putTags("channel", channelName)
-//                    .putTags("client_id", this.getClientId())
-//                    .setTimeout(10 * 1000)
-//                    .build();
-//            kubemq.Kubemq.Response response = this.getClient().sendRequest(request);
-//            return response.getExecuted();
-//        } catch (Exception e) {
-//            log.error("Failed to delete events channel", e);
-//            throw new RuntimeException(e);
-//        }
     }
 
     /**
@@ -282,26 +174,6 @@ public class PubSubClient extends KubeMQClient {
     public boolean deleteEventsStoreChannel(String channelName) {
         log.debug("Deleting events store channel: {}", channelName);
         return kubeMqUtils.deleteChannelRequest(this, this.getClientId(),channelName,"events_store");
-//        try {
-//            log.debug("Deleting events store channel: {}", channelName);
-//            Kubemq.Request request = Kubemq.Request.newBuilder()
-//                    .setRequestID(UUID.randomUUID().toString())
-//                    .setRequestTypeData(Kubemq.Request.RequestType.Query)
-//                    .setRequestTypeDataValue(2)
-//                    .setMetadata("delete-channel")
-//                    .setChannel("kubemq.cluster.internal.requests")
-//                    .setClientID(this.getClientId())
-//                    .putTags("channel_type", "events_store")
-//                    .putTags("channel", channelName)
-//                    .putTags("client_id", this.getClientId())
-//                    .setTimeout(10 * 1000)
-//                    .build();
-//            kubemq.Kubemq.Response response = this.getClient().sendRequest(request);
-//            return response.getExecuted();
-//        } catch (Exception e) {
-//            log.error("Failed to delete events store channel", e);
-//            throw new RuntimeException(e);
-//        }
     }
 
 }

@@ -67,7 +67,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(1)
-    public void testCreateEventsChannel() throws Exception {
+    public void testCreateEventsChannel() {
         log.info("Testing createEventsChannel");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -83,7 +83,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(2)
-    public void testCreateEventsChannelNullName() throws Exception {
+    public void testCreateEventsChannelNullName() {
         log.info("Testing createEventsChannelNullName");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(false).setError("Error").build();
@@ -97,7 +97,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(5)
-    public void testCreateEventsStoreChannel() throws Exception {
+    public void testCreateEventsStoreChannel() {
         log.info("Testing createEventsStoreChannel");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -113,7 +113,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(6)
-    public void testCreateEventsStoreChannelNullName() throws Exception {
+    public void testCreateEventsStoreChannelNullName() {
         log.info("Testing createEventsStoreChannelNullName");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(false).setError("Error").build();
@@ -129,7 +129,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(10)
-    public void testListEventsChannels() throws Exception {
+    public void testListEventsChannels() {
         log.info("Testing listEventsChannels");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -152,7 +152,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(11)
-    public void testListEventsChannelsSearchNUll() throws Exception {
+    public void testListEventsChannelsSearchNUll() {
         log.info("Testing listEventsChannelsSearchNUll");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(false).setError("Error").build();
@@ -169,7 +169,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(15)
-    public void testListEventsStoreChannels() throws Exception {
+    public void testListEventsStoreChannels() {
         log.info("Testing listEventsStoreChannels");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -194,7 +194,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(16)
-    public void testListEventsStoreChannelsNull() throws Exception {
+    public void testListEventsStoreChannelsNull() {
         log.info("Testing listEventsStoreChannelsNegative");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(false).setError("Error").build();
@@ -211,7 +211,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(20)
-    public void testSubscribeToEvents() throws Exception {
+    public void testSubscribeToEvents() {
         log.info("Testing subscribeToEvents");
         EventsSubscription subscription = mock(EventsSubscription.class);
         Kubemq.Subscribe subscribe = Kubemq.Subscribe.newBuilder().build();
@@ -225,7 +225,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(21)
-    public void testSubscribeToEventsNegative() throws Exception {
+    public void testSubscribeToEventsNegative() {
         log.info("Testing subscribeToEventsNegative");
         EventsSubscription subscription = mock(EventsSubscription.class);
         Kubemq.Subscribe subscribe = Kubemq.Subscribe.newBuilder().build();
@@ -243,7 +243,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(25)
-    public void testSubscribeToEventsStore() throws Exception {
+    public void testSubscribeToEventsStore() {
         log.info("Testing subscribeToEventsStore");
         EventsStoreSubscription subscription = mock(EventsStoreSubscription.class);
         Kubemq.Subscribe subscribe = Kubemq.Subscribe.newBuilder().build();
@@ -260,7 +260,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(26)
-    public void testSubscribeToEventsStoreNegative() throws Exception {
+    public void testSubscribeToEventsStoreNegative() {
         log.info("Testing subscribeToEventsStoreNegative");
         EventsStoreSubscription subscription = mock(EventsStoreSubscription.class);
         Kubemq.Subscribe subscribe = Kubemq.Subscribe.newBuilder().build();
@@ -278,7 +278,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(30)
-    public void testSendEventsMessage() throws Exception {
+    public void testSendEventsMessage() {
         log.info("Testing sendEventsMessage");
         EventMessage message = mock(EventMessage.class);
         Kubemq.Event event = Kubemq.Event.newBuilder().build();
@@ -293,7 +293,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(31)
-    public void testSendEventsMessageChannelEmpty() throws Exception {
+    public void testSendEventsMessageChannelEmpty() {
         log.info("Testing SendEventsMessageChannelEmpty");
         EventMessage message = mock(EventMessage.class);
 
@@ -310,7 +310,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(32)
-    public void testSendEventsMessageBodyEmpty() throws Exception {
+    public void testSendEventsMessageBodyEmpty() {
         log.info("Testing SendEventsMessageBodyEmpty");
         EventMessage message = mock(EventMessage.class);
 
@@ -327,7 +327,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(35)
-    public void testSendEventsStoreMessage() throws Exception {
+    public void testSendEventsStoreMessage() {
         log.info("Testing sendEventsStoreMessage");
         EventStoreMessage message = mock(EventStoreMessage.class);
         StreamObserver<Kubemq.Event> eventStreamObserver = mock(StreamObserver.class);
@@ -347,7 +347,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(36)
-    public void testSendEventsStoreMessageNotSent() throws Exception {
+    public void testSendEventsStoreMessageNotSent() {
         log.info("Testing SendEventsStoreMessageNotSent");
         EventStoreMessage message = mock(EventStoreMessage.class);
         StreamObserver<Kubemq.Event> eventStreamObserver = mock(StreamObserver.class);
@@ -365,7 +365,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(37)
-    public void testSendEventsStoreMessageChannelEmpty() throws Exception {
+    public void testSendEventsStoreMessageChannelEmpty() {
         log.info("Testing SendEventsStoreMessageChannelEmpty");
         EventStoreMessage message = mock(EventStoreMessage.class);
 
@@ -382,7 +382,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(38)
-    public void testSendEventsStoreMessageEmptyBody() throws Exception {
+    public void testSendEventsStoreMessageEmptyBody() {
         log.info("Testing SendEventsStoreMessageEmptyBody");
         EventStoreMessage message = mock(EventStoreMessage.class);
 
@@ -399,7 +399,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(40)
-    public void testDeleteEventsChannel() throws Exception {
+    public void testDeleteEventsChannel() {
         log.info("Testing deleteEventsChannel");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -415,7 +415,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(41)
-    public void testDeleteEventsChannelNotDeleted() throws Exception {
+    public void testDeleteEventsChannelNotDeleted() {
         log.info("Testing deleteEventsChannelNotDeleted");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -429,7 +429,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(42)
-    public void testDeleteEventsChannelNegative() throws Exception {
+    public void testDeleteEventsChannelNegative() {
         log.info("Testing deleteEventsChannelNegative");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(false).setError("Error").build();
@@ -448,7 +448,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(45)
-    public void testDeleteEventsStoreChannel() throws Exception {
+    public void testDeleteEventsStoreChannel() {
         log.info("Testing deleteEventsStoreChannel");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -464,7 +464,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(46)
-    public void testDeleteEventsStoreChannelNotDeleted() throws Exception {
+    public void testDeleteEventsStoreChannelNotDeleted() {
         log.info("Testing deleteEventsStoreChannelNotDeleted");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(true).build();
@@ -480,7 +480,7 @@ public class PubSubClientTest {
 
     @Test
     @Order(47)
-    public void testDeleteEventsStoreChannelNegative() throws Exception {
+    public void testDeleteEventsStoreChannelNegative() {
         log.info("Testing deleteEventsStoreChannelNegative");
         Kubemq.Request request = Kubemq.Request.newBuilder().setClientID(CLIENT_ID).build();
         Kubemq.Response response = Kubemq.Response.newBuilder().setExecuted(false).setError("Error").build();

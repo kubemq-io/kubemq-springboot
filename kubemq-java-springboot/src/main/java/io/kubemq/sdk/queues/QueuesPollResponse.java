@@ -87,7 +87,7 @@ public class QueuesPollResponse {
         this.responseHandler = responseHandler;
         this.receiverClientId = receiverClientId;
         response.getMessagesList().forEach(message -> {
-            QueueMessageReceived receivedMessage = new QueueMessageReceived().decode(
+            QueueMessageReceived receivedMessage =  QueueMessageReceived.decode(
                     message,
                     response.getTransactionId(),
                     response.getTransactionComplete(),

@@ -59,7 +59,7 @@ public class CQClientTest {
 
     @Test
     @Order(1)
-    public void testCreateCommandsChannel() throws Exception {
+    public void testCreateCommandsChannel() {
         log.info("Testing createCommandsChannel");
         when(cqClient.createCommandsChannel(anyString())).thenReturn(true);
         boolean result = cqClient.createCommandsChannel("channelName");
@@ -69,7 +69,7 @@ public class CQClientTest {
 
     @Test
     @Order(2)
-    public void testCreateCommandsChannelValidation() throws Exception {
+    public void testCreateCommandsChannelValidation() {
         log.info("Testing createCommandsChannel validation");
         when(cqClient.createCommandsChannel(anyString())).thenThrow(new IllegalArgumentException("Invalid channel name"));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -81,7 +81,7 @@ public class CQClientTest {
 
     @Test
     @Order(5)
-    public void testCreateQueriesChannel() throws Exception {
+    public void testCreateQueriesChannel() {
         log.info("Testing createQueriesChannel");
         when(cqClient.createQueriesChannel(anyString())).thenReturn(true);
         boolean result = cqClient.createQueriesChannel("channelName");
@@ -91,7 +91,7 @@ public class CQClientTest {
 
     @Test
     @Order(6)
-    public void testCreateQueriesChannelValidation() throws Exception {
+    public void testCreateQueriesChannelValidation() {
         log.info("Testing createQueriesChannel validation");
         when(cqClient.createQueriesChannel(anyString())).thenThrow(new IllegalArgumentException("Invalid channel name"));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -103,7 +103,7 @@ public class CQClientTest {
 
     @Test
     @Order(10)
-    public void testDeleteCommandsChannel() throws Exception {
+    public void testDeleteCommandsChannel() {
         log.info("Testing deleteCommandsChannel");
         when(cqClient.deleteCommandsChannel("channelName")).thenReturn(true);
         boolean result = cqClient.deleteCommandsChannel("channelName");
@@ -113,7 +113,7 @@ public class CQClientTest {
 
     @Test
     @Order(11)
-    public void testDeleteCommandsChannelValidation() throws Exception {
+    public void testDeleteCommandsChannelValidation() {
         log.info("Testing deleteCommandsChannel validation");
         when(cqClient.deleteCommandsChannel(anyString())).thenThrow(new IllegalArgumentException("Invalid channel name"));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -125,7 +125,7 @@ public class CQClientTest {
 
     @Test
     @Order(15)
-    public void testDeleteQueriesChannel() throws Exception {
+    public void testDeleteQueriesChannel() {
         log.info("Testing deleteQueriesChannel");
         when(cqClient.deleteQueriesChannel("channelName")).thenReturn(true);
         boolean result = cqClient.deleteQueriesChannel("channelName");
@@ -135,7 +135,7 @@ public class CQClientTest {
 
     @Test
     @Order(16)
-    public void testDeleteQueriesChannelValidation() throws Exception {
+    public void testDeleteQueriesChannelValidation() {
         log.info("Testing deleteQueriesChannel validation");
         when(cqClient.deleteQueriesChannel(anyString())).thenThrow(new IllegalArgumentException("Invalid channel name"));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -147,7 +147,7 @@ public class CQClientTest {
 
     @Test
     @Order(20)
-    public void testListCommandsChannels() throws Exception {
+    public void testListCommandsChannels() {
         log.info("Testing listCommandsChannels");
         List<CQChannel> expectedChannels = Collections.singletonList(
                 new CQChannel(
@@ -164,7 +164,7 @@ public class CQClientTest {
 
     @Test
     @Order(21)
-    public void testListCommandsChannelsValidation() throws Exception {
+    public void testListCommandsChannelsValidation() {
         log.info("Testing listCommandsChannels validation");
         when(cqClient.listCommandsChannels(anyString())).thenThrow(new IllegalArgumentException("Invalid search pattern"));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -176,7 +176,7 @@ public class CQClientTest {
 
     @Test
     @Order(25)
-    public void testListQueriesChannels() throws Exception {
+    public void testListQueriesChannels() {
         log.info("Testing listQueriesChannels");
         List<CQChannel> expectedChannels = Collections.singletonList(
                 new CQChannel(
@@ -193,7 +193,7 @@ public class CQClientTest {
 
     @Test
     @Order(26)
-    public void testListQueriesChannelsValidation() throws Exception {
+    public void testListQueriesChannelsValidation() {
         log.info("Testing listQueriesChannels validation");
         when(cqClient.listQueriesChannels(anyString())).thenThrow(new IllegalArgumentException("Invalid search pattern"));
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -205,7 +205,7 @@ public class CQClientTest {
 
     @Test
     @Order(30)
-    public void testSubscribeToCommands() throws Exception {
+    public void testSubscribeToCommands() {
         log.info("Testing subscribeToCommands");
         CommandsSubscription subscription = mock(CommandsSubscription.class);
         Kubemq.Subscribe subscribe = Kubemq.Subscribe.newBuilder().build();
@@ -216,7 +216,7 @@ public class CQClientTest {
 
     @Test
     @Order(31)
-    public void testSubscribeToCommandsValidation() throws Exception {
+    public void testSubscribeToCommandsValidation() {
         log.info("Testing subscribeToCommands validation");
         CommandsSubscription subscription = mock(CommandsSubscription.class);
         lenient().doThrow(new IllegalArgumentException("Invalid subscription")).when(subscription).validate();
@@ -231,7 +231,7 @@ public class CQClientTest {
 
     @Test
     @Order(35)
-    public void testSubscribeToQueries() throws Exception {
+    public void testSubscribeToQueries() {
         log.info("Testing subscribeToQueries");
         QueriesSubscription subscription = mock(QueriesSubscription.class);
         Kubemq.Subscribe subscribe = Kubemq.Subscribe.newBuilder().build();
@@ -242,7 +242,7 @@ public class CQClientTest {
 
     @Test
     @Order(36)
-    public void testSubscribeToQueriesValidation() throws Exception {
+    public void testSubscribeToQueriesValidation() {
         log.info("Testing subscribeToQueries validation");
         QueriesSubscription subscription = mock(QueriesSubscription.class);
         lenient().doThrow(new IllegalArgumentException("Invalid subscription")).when(subscription).validate();
@@ -257,7 +257,7 @@ public class CQClientTest {
 
     @Test
     @Order(40)
-    public void testSendQueryRequest() throws Exception {
+    public void testSendQueryRequest() {
         log.info("Testing sendQueryRequest");
         QueryMessage message = mock(QueryMessage.class);
         QueryResponseMessage expected = QueryResponseMessage.builder().isExecuted(true).build();
@@ -272,7 +272,7 @@ public class CQClientTest {
 
     @Test
     @Order(41)
-    public void testSendQueryRequestValidation() throws Exception {
+    public void testSendQueryRequestValidation() {
         log.info("Testing sendQueryRequest validation");
         QueryMessage message = mock(QueryMessage.class);
         lenient().when(message.encode(CLIENT_ID)).thenThrow(new IllegalArgumentException("Invalid query message"));
@@ -287,7 +287,7 @@ public class CQClientTest {
 
     @Test
     @Order(45)
-    public void testSendCommandRequest() throws Exception {
+    public void testSendCommandRequest() {
         log.info("Testing sendCommandRequest");
         CommandMessage message = mock(CommandMessage.class);
         CommandResponseMessage expected = CommandResponseMessage.builder().isExecuted(true).build();
@@ -302,7 +302,7 @@ public class CQClientTest {
 
     @Test
     @Order(46)
-    public void testSendCommandRequestValidation() throws Exception {
+    public void testSendCommandRequestValidation() {
         log.info("Testing sendCommandRequest validation");
         CommandMessage message = mock(CommandMessage.class);
         lenient().when(message.encode(CLIENT_ID)).thenThrow(new IllegalArgumentException("Invalid command message"));
@@ -317,7 +317,7 @@ public class CQClientTest {
 
     @Test
     @Order(50)
-    public void testSendResponseMessage() throws Exception {
+    public void testSendResponseMessage() {
         log.info("Testing sendResponseMessage");
         CommandResponseMessage message = mock(CommandResponseMessage.class);
         Kubemq.Response response = Kubemq.Response.newBuilder().build();
@@ -329,7 +329,7 @@ public class CQClientTest {
 
     @Test
     @Order(51)
-    public void testSendResponseMessageValidation() throws Exception {
+    public void testSendResponseMessageValidation() {
         log.info("Testing sendResponseMessage validation");
         CommandResponseMessage message = mock(CommandResponseMessage.class);
         lenient().when(message.encode(CLIENT_ID)).thenThrow(new IllegalArgumentException("Invalid response message"));

@@ -18,12 +18,13 @@ public class EventStreamHelper {
 
     public EventStreamHelper() {
         futureResponse = new CompletableFuture<>();
-        this.resultStreamObserver =  new StreamObserver<Kubemq.Result>() {
+        this.resultStreamObserver = new StreamObserver<>() {
             @Override
             public void onNext(Kubemq.Result result) {
                 log.debug("Received EventSendResult: '{}'", result);
                 futureResponse.complete(EventSendResult.decode(result));
             }
+
             @Override
             public void onError(Throwable t) {
                 log.error("Error in EventSendResult: ", t);
@@ -31,6 +32,7 @@ public class EventStreamHelper {
                 sendResult.setError(t.getMessage());
                 futureResponse.complete(sendResult);
             }
+
             @Override
             public void onCompleted() {
                 log.debug("EventSendResult onCompleted.");

@@ -66,7 +66,7 @@ public class CommandsSubscription {
                 .setSubscribeTypeDataValue(Subscribe.SubscribeType.Commands_VALUE)
                 .build();
 
-        observer = new StreamObserver<Kubemq.Request>() {
+        observer = new StreamObserver<>() {
             @Override
             public void onNext(Kubemq.Request messageReceive) {
                 log.debug("CommandsSubscription-> CommandMessageReceived Received: '{}'", messageReceive);
@@ -75,11 +75,10 @@ public class CommandsSubscription {
 
             @Override
             public void onError(Throwable t) {
-                log.error("Error:-- > "+t.getMessage());
+                log.error("Error:-- > " + t.getMessage());
                 raiseOnError(t.getMessage());
                 // IF gRPC exception attempt to retry
-                if(t instanceof io.grpc.StatusRuntimeException){
-                    io.grpc.StatusRuntimeException se =(io.grpc.StatusRuntimeException)t;
+                if (t instanceof io.grpc.StatusRuntimeException) {
                     reconnect(cQClient);
                 }
             }

@@ -149,30 +149,30 @@ public class EventsStoreSubscription {
                 .setEventsStoreTypeValue(eventsStoreStartTime != null?(int) eventsStoreStartTime.getEpochSecond() : eventsStoreSequenceValue)
                 .build();
 
-         observer = new StreamObserver<Kubemq.EventReceive>() {
-            @Override
-            public void onNext(Kubemq.EventReceive messageReceive) {
-                log.debug("Event Received Event: EventID:'{}', Channel:'{}', Metadata: '{}'", messageReceive.getEventID(), messageReceive.getChannel(), messageReceive.getMetadata());
-                // Send the received message to the consumer
-                raiseOnReceiveMessage(EventStoreMessageReceived.decode(messageReceive));
-            }
+         observer = new StreamObserver<>() {
+             @Override
+             public void onNext(Kubemq.EventReceive messageReceive) {
+                 log.debug("Event Received Event: EventID:'{}', Channel:'{}', Metadata: '{}'", messageReceive.getEventID(), messageReceive.getChannel(), messageReceive.getMetadata());
+                 // Send the received message to the consumer
+                 raiseOnReceiveMessage(EventStoreMessageReceived.decode(messageReceive));
+             }
 
-            @Override
-            public void onError(Throwable t) {
-                log.error("Error:-- > "+t.getMessage());
-                raiseOnError(t.getMessage());
-                // IF gRPC exception attempt to retry
-                if(t instanceof io.grpc.StatusRuntimeException){
-                    io.grpc.StatusRuntimeException se =(io.grpc.StatusRuntimeException)t;
-                        reconnect(pubSubClient);
-                }
-            }
+             @Override
+             public void onError(Throwable t) {
+                 log.error("Error:-- > " + t.getMessage());
+                 raiseOnError(t.getMessage());
+                 // IF gRPC exception attempt to retry
+                 if (t instanceof io.grpc.StatusRuntimeException) {
+                     io.grpc.StatusRuntimeException se = (io.grpc.StatusRuntimeException) t;
+                     reconnect(pubSubClient);
+                 }
+             }
 
-            @Override
-            public void onCompleted() {
-                log.debug("StreamObserver completed.");
-            }
-        };
+             @Override
+             public void onCompleted() {
+                 log.debug("StreamObserver completed.");
+             }
+         };
 
         return subscribe;
     }

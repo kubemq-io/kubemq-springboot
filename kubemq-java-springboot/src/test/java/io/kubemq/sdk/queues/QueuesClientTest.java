@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -69,7 +68,7 @@ public class QueuesClientTest {
 
     @Test
     @Order(1)
-    public void testCreateQueuesChannel() throws Exception {
+    public void testCreateQueuesChannel() {
         log.info("Testing createQueuesChannel");
         when(queuesClient.createQueuesChannel(any(String.class))).thenReturn(true);
         boolean result = queuesClient.createQueuesChannel("channelName");
@@ -80,7 +79,7 @@ public class QueuesClientTest {
 
     @Test
     @Order(5)
-    public void testDeleteQueuesChannel() throws Exception {
+    public void testDeleteQueuesChannel() {
         log.info("Testing deleteQueuesChannel");
         when(queuesClient.deleteQueuesChannel(any(String.class))).thenReturn(true);
         boolean result = queuesClient.deleteQueuesChannel("channelName");
@@ -91,7 +90,7 @@ public class QueuesClientTest {
 
     @Test
     @Order(10)
-    public void testListQueuesChannels() throws Exception {
+    public void testListQueuesChannels() {
         log.info("Testing listQueuesChannels");
         List<QueuesChannel> expectedChannels = Collections.singletonList(
                 QueuesChannel.builder()
@@ -114,7 +113,7 @@ public class QueuesClientTest {
 
     @Test
     @Order(35)
-    public void testSendQueuesMessagesUpStream() throws Exception {
+    public void testSendQueuesMessagesUpStream() {
         log.info("Testing sendQueuesMessagesUpStream");
         QueueMessage messageMock = mock(QueueMessage.class);
         Kubemq.QueuesUpstreamRequest upstreamRequest = Kubemq.QueuesUpstreamRequest.newBuilder()
@@ -133,7 +132,7 @@ public class QueuesClientTest {
 
     @Test
     @Order(40)
-    public void testReceiveQueuesMessages() throws Exception {
+    public void testReceiveQueuesMessages() {
         log.info("Testing receiveQueuesMessagesDownStream");
         QueuesPollRequest pollRequest = mock(QueuesPollRequest.class);
         QueueStreamHelper streamHelper = mock(QueueStreamHelper.class);

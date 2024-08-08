@@ -257,7 +257,7 @@ public abstract class KubeMQClient implements AutoCloseable {
      * This class is used internally by KubeMQClient to ensure secure communication with the KubeMQ server.
      */
     @AllArgsConstructor
-    public class MetadataInterceptor implements ClientInterceptor {
+    public static class MetadataInterceptor implements ClientInterceptor {
 
         private Metadata metadata;
 

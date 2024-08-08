@@ -4,7 +4,6 @@ import io.kubemq.sdk.common.KubeMQUtils;
 import io.kubemq.sdk.cq.CQClient;
 import io.kubemq.sdk.pubsub.PubSubClient;
 import io.kubemq.sdk.queues.QueuesClient;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 

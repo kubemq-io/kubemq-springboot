@@ -27,7 +27,8 @@ public class ChannelDecoder {
      */
     public static List<PubSubChannel> decodePubSubChannelList(byte[] dataBytes) throws IOException {
         String dataStr = new String(dataBytes, StandardCharsets.UTF_8);
-        return objectMapper.readValue(dataStr, new TypeReference<List<PubSubChannel>>() {});
+        return objectMapper.readValue(dataStr, new TypeReference<>() {
+        });
     }
 
     /**
@@ -39,7 +40,8 @@ public class ChannelDecoder {
      */
     public static List<QueuesChannel> decodeQueuesChannelList(byte[] dataBytes) throws IOException {
         String dataStr = new String(dataBytes, StandardCharsets.UTF_8);
-        return objectMapper.readValue(dataStr, new TypeReference<List<QueuesChannel>>() {});
+        return objectMapper.readValue(dataStr, new TypeReference<>() {
+        });
     }
 
     /**
@@ -51,6 +53,7 @@ public class ChannelDecoder {
      */
     public static List<CQChannel> decodeCqChannelList(byte[] dataBytes) throws IOException {
         String dataStr = new String(dataBytes, StandardCharsets.UTF_8);
-        return objectMapper.readValue(dataStr, new TypeReference<List<CQChannel>>() {});
+        return objectMapper.readValue(dataStr, new TypeReference<>() {
+        });
     }
 }

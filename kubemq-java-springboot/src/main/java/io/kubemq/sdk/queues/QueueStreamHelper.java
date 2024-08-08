@@ -20,14 +20,14 @@ public class QueueStreamHelper {
         CompletableFuture<QueueSendResult> futureResponse = new CompletableFuture<>();
 
         if (queuesUpStreamHandler == null) {
-            StreamObserver<Kubemq.QueuesUpstreamResponse> request = new StreamObserver<Kubemq.QueuesUpstreamResponse>() {
+            StreamObserver<Kubemq.QueuesUpstreamResponse> request = new StreamObserver<>() {
                 @Override
                 public void onNext(Kubemq.QueuesUpstreamResponse messageReceive) {
                     log.debug("QueuesUpstreamResponse Received Message send result: '{}'", messageReceive);
                     QueueSendResult qsr = new QueueSendResult();
-                    if(!messageReceive.getIsError()) {
+                    if (!messageReceive.getIsError()) {
                         qsr.decode(messageReceive.getResults(0));
-                    }else{
+                    } else {
                         qsr.setIsError(true);
                         qsr.setError(messageReceive.getError());
                     }
@@ -64,7 +64,7 @@ public class QueueStreamHelper {
     public QueuesPollResponse receiveMessage(KubeMQClient kubeMQClient, QueuesPollRequest queuesPollRequest){
         CompletableFuture<QueuesPollResponse> futureResponse = new CompletableFuture<>();
          if(queuesDownstreamHandler == null) {
-             StreamObserver<Kubemq.QueuesDownstreamResponse> request = new StreamObserver<Kubemq.QueuesDownstreamResponse>() {
+             StreamObserver<Kubemq.QueuesDownstreamResponse> request = new StreamObserver<>() {
 
                  @Override
                  public void onNext(Kubemq.QueuesDownstreamResponse messageReceive) {
