@@ -39,8 +39,8 @@ public class Application implements CommandLineRunner {
         cqService.sendCommandRequest("commands_channel");
         cqService.subscribeToQueries("queries_channel");
         cqService.sendQueryRequest("queries_channel");
-        // Sleep for 3 seconds before, cancel, subscription, deleting channel and shutdown
-        Thread.sleep(3 *1000);
+        // Sleep for 8 seconds before, cancel, subscription, deleting channel and shutdown
+        Thread.sleep(8 *1000);
         cqService.cancelSusbscription();
         cqService.deleteCommandsChannel("commands_channel");
         cqService.deleteQueriesChannel("queries_channel");
@@ -57,8 +57,8 @@ public class Application implements CommandLineRunner {
         pubsubService.subscribeToEventsStore("events_store_channel");
         pubsubService.sendEventMessage("events_channel");
         pubsubService.sendEventStoreMessage("events_store_channel");
-        // Sleep for 3 seconds before, cancel, subscription, deleting channel and shutdown
-        Thread.sleep(3 *1000);
+        // Sleep for 8 seconds before, cancel, subscription, deleting channel and shutdown
+        Thread.sleep(8 *1000);
         pubsubService.cancelSusbscription();
         pubsubService.deleteEventsChannel("events_channel");
         pubsubService.deleteEventsStoreChannel("events_store_channel");
@@ -74,8 +74,8 @@ public class Application implements CommandLineRunner {
         queuesService.receiveAndBulkHandleQueueMessages("queue_channel");
         queuesService.getWaitingMessages("queue_channel");
         queuesService.getPullMessages("queue_channel");
-         // Sleep for 3 seconds before, deleting channel and shutdown
-        Thread.sleep(3 *1000);
+         // Sleep for 8 seconds before, deleting channel and shutdown
+        Thread.sleep(8 *1000);
         queuesService.deleteQueueChannel("queue_channel");
         queuesService.shutdown();
         

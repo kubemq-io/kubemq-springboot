@@ -98,7 +98,7 @@ public class CQService {
                 .body("Test Command".getBytes())
                 .metadata("Metadata add some extra information")
                 .tags(tags)
-                .timeoutInSeconds(20)
+                .timeoutInSeconds(25)
                 .build();
 
             CommandResponseMessage response = cqClient.sendCommandRequest(commandMessage);
@@ -148,7 +148,7 @@ public class CQService {
                 .body("Test Query".getBytes())
                 .metadata("Metadata put some description")
                 .tags(tags)
-                .timeoutInSeconds(20)
+                .timeoutInSeconds(25)
                 .build();
 
             QueryResponseMessage response = cqClient.sendQueryRequest(queryMessage);
