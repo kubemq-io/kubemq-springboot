@@ -42,7 +42,7 @@ public class EventsSubscription {
      * Observer for the subscription.
      * This field is excluded from the builder and setter.
      */
-    @Setter(onMethod_ = @__(@java.lang.SuppressWarnings("unused")))
+    @Setter
     private transient StreamObserver<Kubemq.EventReceive> observer;
 
     /**

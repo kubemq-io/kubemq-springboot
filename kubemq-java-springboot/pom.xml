@@ -8,7 +8,31 @@
     <packaging>jar</packaging>
 
     <name>kubemq-sdk-springboot</name>
+    <description>KubeMQ SDK for Spring Boot enables Spring Boot developers to easily work with KubeMQ server</description>
     <url>http://maven.apache.org</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>Ido.Sheffer</id>
+            <name>Ido.Sheffer</name>
+            <email>Ido.Sheffer@kubemq.io</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git:github.com/kubemq-io/kubemq-springboot.git</connection>
+        <developerConnection>scm:git:ssh://github.com/kubemq-springboot.git</developerConnection>
+        <url>https://github.com/kubemq-io/kubemq-springboot</url>
+    </scm>
+
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -19,7 +43,7 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-core -->
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -114,37 +138,18 @@
             <version>3.1.0</version>
             <scope>test</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter-api</artifactId>-->
-<!--            <version>5.10.3</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter-engine</artifactId>-->
-<!--            <version>5.10.3</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.mockito</groupId>-->
-<!--            <artifactId>mockito-core</artifactId>-->
-<!--            <version>5.11.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.mockito</groupId>-->
-<!--            <artifactId>mockito-junit-jupiter</artifactId>-->
-<!--            <version>5.11.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.mockito</groupId>-->
-<!--            <artifactId>mockito-inline</artifactId>-->
-<!--            <version>5.2.0</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <extensions>
@@ -154,6 +159,7 @@
                 <version>1.7.1</version>
             </extension>
         </extensions>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -167,6 +173,53 @@
                     </includes>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
@@ -187,6 +240,16 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <altDeploymentRepository>ossrh::default::https://oss.sonatype.org/service/local/staging/deploy/maven2/</altDeploymentRepository>
+                </configuration>
+            </plugin>
+
             <!-- Surefire Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
