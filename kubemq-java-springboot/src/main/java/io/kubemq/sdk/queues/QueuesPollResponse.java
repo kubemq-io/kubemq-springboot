@@ -4,8 +4,7 @@ import io.grpc.stub.StreamObserver;
 import kubemq.Kubemq.QueuesDownstreamRequest;
 import kubemq.Kubemq.QueuesDownstreamRequestType;
 import kubemq.Kubemq.QueuesDownstreamResponse;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -13,7 +12,10 @@ import java.util.List;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class QueuesPollResponse {
     private String refRequestId;
@@ -27,75 +29,87 @@ public class QueuesPollResponse {
     private List<Long> activeOffsets = new ArrayList<>();
     private StreamObserver<QueuesDownstreamRequest> responseHandler;
     private String receiverClientId;
+    private int visibilitySeconds;
+    private boolean isAutoAcked;
 
-    public void ackAll() {
+    public synchronized void ackAll() {
+        doOperation(QueuesDownstreamRequestType.AckAll, null);
+    }
+
+    public synchronized void rejectAll() {
+        doOperation(QueuesDownstreamRequestType.NAckAll, null);
+    }
+
+    public synchronized void reQueueAll(String channel) {
+        doOperation(QueuesDownstreamRequestType.ReQueueAll, channel);
+    }
+
+    private void doOperation(QueuesDownstreamRequestType requestType, String reQueueChannel) {
+        if (isAutoAcked) {
+            throw new IllegalStateException("Transaction was set with auto ack, transaction operations are not allowed");
+        }
         if (isTransactionCompleted) {
             throw new IllegalStateException("Transaction is already completed");
         }
-        QueuesDownstreamRequest request = QueuesDownstreamRequest.newBuilder()
-                .setRequestID(UUID.randomUUID().toString())
-                .setClientID(receiverClientId)
-                .setRequestTypeData(QueuesDownstreamRequestType.AckAll)
-                .setRefTransactionId(transactionId)
-                .addAllSequenceRange(activeOffsets)
-                .build();
-        if(responseHandler != null)
-        responseHandler.onNext(request);
-    }
-
-    public void rejectAll() {
-        if (isTransactionCompleted) {
-            throw new IllegalStateException("Transaction is already completed");
+        if (responseHandler == null) {
+            throw new IllegalStateException("Response handler is not set");
         }
-        QueuesDownstreamRequest request = QueuesDownstreamRequest.newBuilder()
+
+        QueuesDownstreamRequest.Builder requestBuilder = QueuesDownstreamRequest.newBuilder()
                 .setRequestID(UUID.randomUUID().toString())
                 .setClientID(receiverClientId)
-                .setRequestTypeData(QueuesDownstreamRequestType.NAckAll)
+                .setRequestTypeData(requestType)
                 .setRefTransactionId(transactionId)
-                .addAllSequenceRange(activeOffsets)
-                .build();
-        if(responseHandler != null)
-         responseHandler.onNext(request);
-    }
+                .addAllSequenceRange(activeOffsets);
 
-    public void reQueueAll(String channel) {
-        if (channel == null || channel.isEmpty()) {
-            throw new IllegalArgumentException("Re-queue channel cannot be empty");
+        if (reQueueChannel != null && requestType == QueuesDownstreamRequestType.ReQueueAll) {
+            requestBuilder.setReQueueChannel(reQueueChannel);
         }
-        QueuesDownstreamRequest request = QueuesDownstreamRequest.newBuilder()
-                .setRequestID(UUID.randomUUID().toString())
-                .setClientID(receiverClientId)
-                .setRequestTypeData(QueuesDownstreamRequestType.ReQueueAll)
-                .setRefTransactionId(transactionId)
-                .addAllSequenceRange(activeOffsets)
-                .setReQueueChannel(channel)
-                .build();
-        if(responseHandler != null)
-         responseHandler.onNext(request);
+
+        QueuesDownstreamRequest request = requestBuilder.build();
+        this.addTaskToThreadSafeQueue(request);
+
+        isTransactionCompleted = true;
+        // Mark all messages as completed
+        for (QueueMessageReceived message : messages) {
+            message.markTransactionCompleted();
+        }
+
     }
 
-    public QueuesPollResponse decode(
+    public static QueuesPollResponse decode(
             QueuesDownstreamResponse response,
             String receiverClientId,
-            StreamObserver<QueuesDownstreamRequest> responseHandler) {
-        this.refRequestId = response.getRefRequestId();
-        this.transactionId = response.getTransactionId();
-        this.error = response.getError();
-        this.isError = response.getIsError();
-        this.isTransactionCompleted = response.getTransactionComplete();
-        this.activeOffsets.addAll(response.getActiveOffsetsList());
-        this.responseHandler = responseHandler;
-        this.receiverClientId = receiverClientId;
+            StreamObserver<QueuesDownstreamRequest> responseHandler,
+            int visibilitySeconds,
+            boolean isAutoAcked
+    ) {
+        QueuesPollResponse pollResponse = new QueuesPollResponse();
+        pollResponse.refRequestId = response.getRefRequestId();
+        pollResponse.transactionId = response.getTransactionId();
+        pollResponse.error = response.getError();
+        pollResponse.isError = response.getIsError();
+        pollResponse.isTransactionCompleted = response.getTransactionComplete();
+        pollResponse.activeOffsets.addAll(response.getActiveOffsetsList());
+        pollResponse.responseHandler = responseHandler;
+        pollResponse.receiverClientId = receiverClientId;
+        pollResponse.visibilitySeconds = visibilitySeconds;
+        pollResponse.isAutoAcked = isAutoAcked;
+
         response.getMessagesList().forEach(message -> {
-            QueueMessageReceived receivedMessage =  QueueMessageReceived.decode(
+            QueueMessageReceived receivedMessage = QueueMessageReceived.decode(
                     message,
                     response.getTransactionId(),
                     response.getTransactionComplete(),
                     receiverClientId,
-                    responseHandler);
-            this.messages.add(receivedMessage);
+                    responseHandler,
+                    visibilitySeconds,
+                    isAutoAcked
+            );
+            pollResponse.messages.add(receivedMessage);
         });
-        return this;
+
+        return pollResponse;
     }
 
     @Override
@@ -106,48 +120,21 @@ public class QueuesPollResponse {
                 refRequestId, transactionId, error, isError, isTransactionCompleted, activeOffsets, messages);
     }
 
-
-    public void setRefRequestId(String refRequestId) {
-        this.refRequestId = refRequestId;
+    // Method to add tasks to the queue
+    private void addTaskToThreadSafeQueue(QueuesDownstreamRequest request) {
+        QueueDownStreamProcessor.addTask(() -> {
+            synchronized (responseHandler) {
+                try {
+                    responseHandler.onNext(request);
+                    log.debug("{} message: {}", request.getRequestTypeData(), request.getRequestID());
+                } catch (Exception e) {
+                    log.error("Error processing {}: {}", request.getRequestTypeData(), e.getMessage());
+                }
+            }
+        });
     }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public void setMessages(List<QueueMessageReceived> messages) {
-        this.messages = messages;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
-    public void setIsError(boolean error) {
-        this.isError = error;
-    }
-
-    public boolean getIsError(){
+    public boolean isError() {
         return this.isError;
     }
 
-    public boolean isError(){
-        return this.isError;
-    }
-
-    public void setTransactionCompleted(boolean transactionCompleted) {
-        isTransactionCompleted = transactionCompleted;
-    }
-
-    public void setActiveOffsets(List<Long> activeOffsets) {
-        this.activeOffsets = activeOffsets;
-    }
-
-    public void setResponseHandler(StreamObserver<QueuesDownstreamRequest> responseHandler) {
-        this.responseHandler = responseHandler;
-    }
-
-    public void setReceiverClientId(String receiverClientId) {
-        this.receiverClientId = receiverClientId;
-    }
 }
