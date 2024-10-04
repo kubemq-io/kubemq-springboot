@@ -12,7 +12,7 @@ public class QueueStreamHelper {
 
     private StreamObserver<Kubemq.QueuesUpstreamRequest> queuesUpStreamHandler = null;
     private StreamObserver<Kubemq.QueuesDownstreamRequest> queuesDownstreamHandler = null;
-    private CompletableFuture<QueueSendResult> futureResponse;
+    private final CompletableFuture<QueueSendResult> futureResponse;
 
     public QueueStreamHelper() {
         this.futureResponse = new CompletableFuture<>();
@@ -21,7 +21,7 @@ public class QueueStreamHelper {
     public QueueSendResult sendMessage(KubeMQClient kubeMQClient, Kubemq.QueuesUpstreamRequest queueMessage) {
         // Initialize the upstream handler once for the entire session
         if (queuesUpStreamHandler == null) {
-            StreamObserver<Kubemq.QueuesUpstreamResponse> request = new StreamObserver<Kubemq.QueuesUpstreamResponse>() {
+            StreamObserver<Kubemq.QueuesUpstreamResponse> request = new StreamObserver<>() {
                 @Override
                 public void onNext(Kubemq.QueuesUpstreamResponse messageReceive) {
                     log.debug("QueuesUpstreamResponse Received Message send result: '{}'", messageReceive);
@@ -54,19 +54,16 @@ public class QueueStreamHelper {
             queuesUpStreamHandler = kubeMQClient.getAsyncClient().queuesUpstream(request);
         }
 
-        // Synchronize sending messages to avoid concurrent issues
-        synchronized (this) {
-            try {
-                log.debug("Sending message");
-                queuesUpStreamHandler.onNext(queueMessage);
-            } catch (Exception e) {
-                log.error("Error sending message: ", e);
-                throw new RuntimeException("Failed to send message", e);
-            }
+        try {
+            log.debug("Sending message");
+            queuesUpStreamHandler.onNext(queueMessage);
+        } catch (Exception e) {
+            log.error("Error sending message: ", e);
+            throw new RuntimeException("Failed to send message", e);
         }
 
         try {
-            log.debug("Retrieving response from futureResponse.get()");
+            //log.debug("Retrieving response from futureResponse.get()");
             return futureResponse.get();
         } catch (Exception e) {
             log.error("Error waiting for response: ", e);
@@ -77,55 +74,52 @@ public class QueueStreamHelper {
 
     public QueuesPollResponse receiveMessage(KubeMQClient kubeMQClient, QueuesPollRequest queuesPollRequest) {
         CompletableFuture<QueuesPollResponse> futureResponse = new CompletableFuture<>();
-        if (queuesDownstreamHandler == null) {
-            StreamObserver<Kubemq.QueuesDownstreamResponse> request = new StreamObserver<Kubemq.QueuesDownstreamResponse>() {
 
-                @Override
-                public void onNext(Kubemq.QueuesDownstreamResponse messageReceive) {
-                    log.debug("QueuesDownstreamResponse Received Metadata: '{}'", messageReceive);
-                    // Handle the downstream response
-                    QueuesPollResponse qpResp = QueuesPollResponse.builder()
-                            .refRequestId(messageReceive.getRefRequestId())
-                            .activeOffsets(messageReceive.getActiveOffsetsList())
-                            .receiverClientId(messageReceive.getTransactionId())
-                            .isTransactionCompleted(messageReceive.getTransactionComplete())
-                            .transactionId(messageReceive.getTransactionId())
-                            .error(messageReceive.getError())
-                            .isError(messageReceive.getIsError())
-                            .build();
-                    for (Kubemq.QueueMessage queueMessage : messageReceive.getMessagesList()) {
-                        qpResp.getMessages().add(QueueMessageReceived.decode(queueMessage, qpResp.getTransactionId(),
-                                qpResp.isTransactionCompleted(), qpResp.getReceiverClientId(), queuesDownstreamHandler,
-                                queuesPollRequest.getVisibilitySeconds(),queuesPollRequest.isAutoAckMessages()));
-                    }
-                    futureResponse.complete(qpResp);
-                }
+        StreamObserver<Kubemq.QueuesDownstreamResponse> request = new StreamObserver<>() {
 
-                @Override
-                public void onError(Throwable t) {
-                    log.error("Error in QueuesDownstreamResponse StreamObserver: ", t);
-                    QueuesPollResponse qpResp = QueuesPollResponse.builder()
-                            .error(t.getMessage())
-                            .isError(true)
-                            .build();
-                    futureResponse.complete(qpResp);
+            @Override
+            public void onNext(Kubemq.QueuesDownstreamResponse messageReceive) {
+                log.debug("QueuesDownstreamResponse Received Metadata: '{}'", messageReceive);
+                // Handle the downstream response
+                QueuesPollResponse qpResp = QueuesPollResponse.builder()
+                        .refRequestId(messageReceive.getRefRequestId())
+                        .activeOffsets(messageReceive.getActiveOffsetsList())
+                        .receiverClientId(messageReceive.getTransactionId())
+                        .isTransactionCompleted(messageReceive.getTransactionComplete())
+                        .transactionId(messageReceive.getTransactionId())
+                        .error(messageReceive.getError())
+                        .isError(messageReceive.getIsError())
+                        .build();
+                for (Kubemq.QueueMessage queueMessage : messageReceive.getMessagesList()) {
+                    qpResp.getMessages().add(new QueueMessageReceived().decode(queueMessage, qpResp.getTransactionId(),
+                            qpResp.isTransactionCompleted(), qpResp.getReceiverClientId(), queuesDownstreamHandler,
+                            queuesPollRequest.getVisibilitySeconds(),queuesPollRequest.isAutoAckMessages(), qpResp));
                 }
-
-                @Override
-                public void onCompleted() {
-                    log.debug("QueuesDownstreamResponse StreamObserver completed.");
-                }
-            };
-            queuesDownstreamHandler = kubeMQClient.getAsyncClient().queuesDownstream(request);
-        }
-        // Synchronize sending messages to avoid concurrent issues
-        synchronized (this) {
-            try {
-                queuesDownstreamHandler.onNext(queuesPollRequest.encode(kubeMQClient.getClientId()));
-            } catch (Exception e) {
-                log.error("Error polling message: ", e);
-                throw new RuntimeException("Failed to polling message", e);
+                futureResponse.complete(qpResp);
             }
+
+            @Override
+            public void onError(Throwable t) {
+                log.error("Error in QueuesDownstreamResponse StreamObserver: ", t);
+                QueuesPollResponse qpResp = QueuesPollResponse.builder()
+                        .error(t.getMessage())
+                        .isError(true)
+                        .build();
+                futureResponse.complete(qpResp);
+            }
+
+            @Override
+            public void onCompleted() {
+                log.debug("QueuesDownstreamResponse StreamObserver completed.");
+            }
+        };
+        queuesDownstreamHandler = kubeMQClient.getAsyncClient().queuesDownstream(request);
+
+        try {
+            queuesDownstreamHandler.onNext(queuesPollRequest.encode(kubeMQClient.getClientId()));
+        } catch (Exception e) {
+            log.error("Error polling message: ", e);
+            throw new RuntimeException("Failed to polling message", e);
         }
 
         try {
