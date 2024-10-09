@@ -75,9 +75,9 @@ public abstract class KubeMQClient implements AutoCloseable {
         if (address == null || clientId == null) {
             throw new IllegalArgumentException("Address and clientId are required");
         }
-        if (tls && (tlsCertFile == null || tlsKeyFile == null)) {
-            throw new IllegalArgumentException("When TLS is enabled, tlsCertFile and tlsKeyFile are required");
-        }
+//        if (tls && (tlsCertFile == null || tlsKeyFile == null)) {
+//            throw new IllegalArgumentException("When TLS is enabled, tlsCertFile and tlsKeyFile are required");
+//        }
 
         this.address = address;
         this.clientId = clientId;
@@ -112,20 +112,24 @@ public abstract class KubeMQClient implements AutoCloseable {
         log.debug("Constructing channel to KubeMQ on {}", address);
         if (tls) {
             try {
-                SslContext sslContext = SslContextBuilder.forClient()
-                        .trustManager(new File(tlsCertFile))
-                        .keyManager(new File(tlsCertFile), new File(tlsKeyFile))
-                        .build();
+
                 NettyChannelBuilder ncb = NettyChannelBuilder.forTarget(address)
-                        .sslContext(sslContext)
                         .negotiationType(NegotiationType.TLS)
                         .maxInboundMessageSize(maxReceiveSize)
                         .enableRetry();
-                    if(keepAlive != null){
-                    ncb = ncb.keepAliveTime(pingIntervalInSeconds == 0 ? 60 : pingIntervalInSeconds, TimeUnit.SECONDS)
-                                .keepAliveTimeout(pingTimeoutInSeconds == 0 ? 30 : pingTimeoutInSeconds, TimeUnit.SECONDS)
-                                .keepAliveWithoutCalls(keepAlive);
-                    }
+                if (tlsCertFile != null || tlsKeyFile != null) {
+                    SslContext sslContext = SslContextBuilder.forClient()
+                            .trustManager(new File(tlsCertFile))
+                            .keyManager(new File(tlsCertFile), new File(tlsKeyFile))
+                            .build();
+                    ncb.sslContext(sslContext);
+                }
+
+                if(keepAlive != null){
+                ncb = ncb.keepAliveTime(pingIntervalInSeconds == 0 ? 60 : pingIntervalInSeconds, TimeUnit.SECONDS)
+                            .keepAliveTimeout(pingTimeoutInSeconds == 0 ? 30 : pingTimeoutInSeconds, TimeUnit.SECONDS)
+                            .keepAliveWithoutCalls(keepAlive);
+                }
                 managedChannel = ncb.build();
             } catch (SSLException e) {
                 log.error("Failed to set up SSL context", e);
