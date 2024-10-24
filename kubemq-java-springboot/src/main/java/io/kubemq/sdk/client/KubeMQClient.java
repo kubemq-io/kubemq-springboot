@@ -75,10 +75,10 @@ public abstract class KubeMQClient implements AutoCloseable {
     public KubeMQClient(String address, String clientId, String authToken, boolean tls, String tlsCertFile, String tlsKeyFile, String caCertFile,
                         int maxReceiveSize, int reconnectIntervalSeconds, Boolean keepAlive, int pingIntervalInSeconds, int pingTimeoutInSeconds, Level logLevel) {
         if (address == null || clientId == null) {
-            throw new IllegalArgumentException("Address and clientId are required");
+            throw new IllegalArgumentException("Address or clientId are required");
         }
 //        if (tls && (tlsCertFile == null || tlsKeyFile == null)) {
-//            throw new IllegalArgumentException("When TLS is enabled, tlsCertFile and tlsKeyFile are required");
+//            throw new IllegalArgumentException("When TLS is enabled, tlsCertFile and tlsKeyFile are required"); // In this case the message could be: When TLS is enabled, tlsCertFile or tlsKeyFile is required
 //        }
 
         this.address = address;
