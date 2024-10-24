@@ -219,6 +219,7 @@ kubemq.client.authToken=your-auth-token
 kubemq.client.tls=false
 kubemq.client.tlsCertFile=your-cert-file
 kubemq.client.tlsKeyFile=your-key-file
+kubemq.client.caCertFile=your-ca-cert-file
 kubemq.client.maxReceiveSize=104857600
 kubemq.client.reconnectIntervalSeconds=1
 kubemq.client.keepAlive=true
@@ -236,6 +237,7 @@ kubemq:
     tls: true
     tlsCertFile: path/to/certFile
     tlsKeyFile: path/to/keyFile
+    caCertFile: your-ca-cert-file
     maxReceiveSize: 104857600
     reconnectIntervalSeconds: 5
     keepAlive: true
@@ -249,20 +251,21 @@ kubemq:
 
 The table below describes all available configuration parameters:
 
-| Name                     | Type    | Description                                             | Default Value     | Mandatory                 |
-|--------------------------|---------|---------------------------------------------------------|-------------------|---------------------------|
-| address                  | String  | The address of the KubeMQ server.                       | None              | Yes                       |
-| clientId                 | String  | The client ID used for authentication.                  | None              | Yes                       |
-| authToken                | String  | The authorization token for secure communication.       | None              | No                        |
-| tls                      | boolean | Indicates if TLS (Transport Layer Security) is enabled. | false             | No                        |
-| tlsCertFile              | String  | The path to the TLS certificate file.                   | None              | No (Yes if `tls` is true) |
-| tlsKeyFile               | String  | The path to the TLS key file.                           | None              | No (Yes if `tls` is true) |
-| maxReceiveSize           | int     | The maximum size of the messages to receive (in bytes). | 104857600 (100MB) | No                        |
-| reconnectIntervalSeconds | int     | The interval in seconds between reconnection attempts.  | 1                 | No                        |
-| keepAlive                | boolean | Indicates if the connection should be kept alive.       | false             | No                        |
-| pingIntervalInSeconds    | int     | The interval in seconds between ping messages.          | 60                | No                        |
-| pingTimeoutInSeconds     | int     | The timeout in seconds for ping messages.               | 30                | No                        |
-| logLevel                 | Level   | The logging level to use.                               | Level.INFO        | No                        |
+| Name                     | Type    | Description                                             | Default Value     | Mandatory |
+|--------------------------|---------|---------------------------------------------------------|-------------------|-----------|
+| address                  | String  | The address of the KubeMQ server.                       | None              | Yes       |
+| clientId                 | String  | The client ID used for authentication.                  | None              | Yes       |
+| authToken                | String  | The authorization token for secure communication.       | None              | No        |
+| tls                      | boolean | Indicates if TLS (Transport Layer Security) is enabled. | false             | No        |
+| tlsCertFile              | String  | The path to the TLS certificate file.                   | None              | No        |
+| tlsKeyFile               | String  | The path to the TLS key file.                           | None              | No        |
+| caCertFile               | String  | The path to the CA certificate file.                    | None              | No        |
+| maxReceiveSize           | int     | The maximum size of the messages to receive (in bytes). | 104857600 (100MB) | No        |
+| reconnectIntervalSeconds | int     | The interval in seconds between reconnection attempts.  | 1                 | No        |
+| keepAlive                | boolean | Indicates if the connection should be kept alive.       | false             | No        |
+| pingIntervalInSeconds    | int     | The interval in seconds between ping messages.          | 60                | No        |
+| pingTimeoutInSeconds     | int     | The timeout in seconds for ping messages.               | 30                | No        |
+| logLevel                 | Level   | The logging level to use.                               | Level.INFO        | No        |
 
 ### Spring Boot enable component scan
   Enable component scan for package `io.kubmq` this is base package for SDK, so spring can scan for beans and make it available for Auto-wiring.

@@ -4,20 +4,11 @@ import io.grpc.stub.StreamObserver;
 import kubemq.Kubemq.QueueMessage;
 import kubemq.Kubemq.QueuesDownstreamRequest;
 import kubemq.Kubemq.QueuesDownstreamRequestType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * Represents a received queue message.
@@ -43,30 +34,37 @@ public class QueueMessageReceived {
     private Instant expiredAt;
     private Instant delayedTo;
     private String transactionId;
-    private boolean isTransactionCompleted;
     private StreamObserver<QueuesDownstreamRequest> responseHandler;
     private String receiverClientId;
     private int visibilitySeconds;
+
+    @Getter
+    private boolean isTransactionCompleted;
+    @Getter
     private boolean isAutoAcked;
 
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private Timer visibilityTimer;
     private boolean messageCompleted;
     private boolean timerExpired;
 
-    private final Lock lock = new ReentrantLock();
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private QueuesPollResponse queuesPollResponse;
 
     // Method to ack() a message
-    public synchronized void ack() {
+    public  void ack() {
         doOperation(QueuesDownstreamRequestType.AckRange, null);
     }
 
     // Method to reject() a message
-    public synchronized void reject() {
+    public  void reject() {
         doOperation(QueuesDownstreamRequestType.NAckRange, null);
     }
 
     // Method to reQueue() a message
-    public synchronized void reQueue(String reQueueChannel) {
+    public  void reQueue(String reQueueChannel) {
         if (reQueueChannel == null || reQueueChannel.isEmpty()) {
             throw new IllegalArgumentException("Re-queue channel cannot be empty");
         }
@@ -88,7 +86,6 @@ public class QueueMessageReceived {
         QueuesDownstreamRequest.Builder requestBuilder = QueuesDownstreamRequest.newBuilder()
                 .setRequestID(UUID.randomUUID().toString())
                 .setClientID(receiverClientId)
-                .setChannel(channel)
                 .setRequestTypeData(requestType)
                 .setRefTransactionId(transactionId)
                 .addSequenceRange(sequence);
@@ -103,128 +100,104 @@ public class QueueMessageReceived {
         if (visibilityTimer != null && !timerExpired) {
             visibilityTimer.cancel();
         }
+
+        if(queuesPollResponse != null) {
+            queuesPollResponse.checkAndCloseStream(id);
+        }
     }
 
     private void addTaskToThreadSafeQueue(QueuesDownstreamRequest request) {
         QueueDownStreamProcessor.addTask(() -> {
-            synchronized (responseHandler) {
                 try {
                     responseHandler.onNext(request);
                     log.debug("{} message: {}", request.getRequestTypeData(), request.getRequestID());
                 } catch (Exception e) {
                     log.error("Error processing {}: {}", request.getRequestTypeData(), e.getMessage());
                 }
-            }
         });
     }
 
-    public static QueueMessageReceived decode(
+    public QueueMessageReceived decode(
             QueueMessage message,
             String transactionId,
             boolean transactionIsCompleted,
             String receiverClientId,
             StreamObserver<QueuesDownstreamRequest> responseHandler,
             int visibilitySeconds,
-            boolean isAutoAcked
+            boolean isAutoAcked,
+            QueuesPollResponse queuesPollResponse
     ) {
-        QueueMessageReceived received = new QueueMessageReceived();
-        received.id = message.getMessageID();
-        received.channel = message.getChannel();
-        received.metadata = message.getMetadata();
-        received.body = message.getBody().toByteArray();
-        received.fromClientId = message.getClientID();
-        received.tags = new HashMap<>(message.getTagsMap());
-        received.timestamp = Instant.ofEpochSecond(message.getAttributes().getTimestamp() / 1_000_000_000L);
-        received.sequence = message.getAttributes().getSequence();
-        received.receiveCount = message.getAttributes().getReceiveCount();
-        received.isReRouted = message.getAttributes().getReRouted();
-        received.reRouteFromQueue = message.getAttributes().getReRoutedFromQueue();
-        received.expiredAt = Instant.ofEpochSecond(message.getAttributes().getExpirationAt() / 1_000_000L);
-        received.delayedTo = Instant.ofEpochSecond(message.getAttributes().getDelayedTo() / 1_000_000L);
-        received.transactionId = transactionId;
-        received.isTransactionCompleted = transactionIsCompleted;
-        received.receiverClientId = receiverClientId;
-        received.responseHandler = responseHandler;
-        received.visibilitySeconds = visibilitySeconds;
-        received.isAutoAcked = isAutoAcked;
 
-        if (received.visibilitySeconds > 0) {
-            received.startVisibilityTimer();
+        this.id = message.getMessageID();
+        this.channel = message.getChannel();
+        this.metadata = message.getMetadata();
+        this.body = message.getBody().toByteArray();
+        this.fromClientId = message.getClientID();
+        this.tags = new HashMap<>(message.getTagsMap());
+        this.timestamp = Instant.ofEpochSecond(message.getAttributes().getTimestamp() / 1_000_000_000L);
+        this.sequence = message.getAttributes().getSequence();
+        this.receiveCount = message.getAttributes().getReceiveCount();
+        this.isReRouted = message.getAttributes().getReRouted();
+        this.reRouteFromQueue = message.getAttributes().getReRoutedFromQueue();
+        this.expiredAt = Instant.ofEpochSecond(message.getAttributes().getExpirationAt() / 1_000_000L);
+        this.delayedTo = Instant.ofEpochSecond(message.getAttributes().getDelayedTo() / 1_000_000L);
+        this.transactionId = transactionId;
+        this.isTransactionCompleted = transactionIsCompleted;
+        this.receiverClientId = receiverClientId;
+        this.responseHandler = responseHandler;
+        this.visibilitySeconds = visibilitySeconds;
+        this.isAutoAcked = isAutoAcked;
+        this.queuesPollResponse = queuesPollResponse;
+
+        if (this.visibilitySeconds > 0) {
+            this.startVisibilityTimer();
         }
 
-        return received;
+        return this;
     }
 
     private void startVisibilityTimer() {
-        // Use the shared lock from the SharedLock class
-        Lock lock = QueueSharedLock.getLock();
-        lock.lock();
-        try {
-            visibilityTimer = new Timer();
-            visibilityTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    onVisibilityExpired();
-                }
-            }, visibilitySeconds * 1000);
-        } finally {
-            lock.unlock();
-        }
+        visibilityTimer = new Timer();
+        visibilityTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                onVisibilityExpired();
+            }
+        }, visibilitySeconds * 1000);
     }
 
     private void onVisibilityExpired() {
-        // Use the shared lock from the SharedLock class
-        Lock lock = QueueSharedLock.getLock();
-        lock.lock();
-        try {
-            timerExpired = true;
-            visibilityTimer = null;
-        } finally {
-            lock.unlock();
-        }
+        timerExpired = true;
+        visibilityTimer = null;
         reject();
         throw new IllegalStateException("Message visibility expired");
     }
 
     public void extendVisibilityTimer(int additionalSeconds) {
-        // Use the shared lock from the SharedLock class
-        Lock lock = QueueSharedLock.getLock();
-        lock.lock();
-        try {
-            if (additionalSeconds <= 0) {
-                throw new IllegalArgumentException("additionalSeconds must be greater than 0");
-            }
-            if (visibilityTimer == null) {
-                throw new IllegalStateException("Cannot extend, timer not active");
-            }
-            if (timerExpired) {
-                throw new IllegalStateException("Cannot extend, timer has expired");
-            }
-            if (messageCompleted) {
-                throw new IllegalStateException("Message transaction is already completed");
-            }
-            visibilityTimer.cancel(); // Cancel the existing timer
-            visibilitySeconds += additionalSeconds; // Extend the duration
-            startVisibilityTimer(); // Restart the timer with the new duration
-        } finally {
-            lock.unlock();
+        if (additionalSeconds <= 0) {
+            throw new IllegalArgumentException("additionalSeconds must be greater than 0");
         }
+        if (visibilityTimer == null) {
+            throw new IllegalStateException("Cannot extend, timer not active");
+        }
+        if (timerExpired) {
+            throw new IllegalStateException("Cannot extend, timer has expired");
+        }
+        if (messageCompleted) {
+            throw new IllegalStateException("Message transaction is already completed");
+        }
+        visibilityTimer.cancel(); // Cancel the existing timer
+        visibilitySeconds += additionalSeconds; // Extend the duration
+        startVisibilityTimer(); // Restart the timer with the new duration
     }
 
 
     // Method to mark the transaction as completed
     public void markTransactionCompleted() {
-        // Use the shared lock from the SharedLock class
-        Lock lock = QueueSharedLock.getLock();
-        lock.lock();
-        try {
-            messageCompleted = true;
-            isTransactionCompleted = true;
-            if (visibilityTimer != null) {
-                visibilityTimer.cancel();
-            }
-        } finally {
-            lock.unlock();
+        messageCompleted = true;
+        isTransactionCompleted = true;
+        if (visibilityTimer != null) {
+            visibilityTimer.cancel();
         }
     }
 }
